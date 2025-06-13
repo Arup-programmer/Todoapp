@@ -10,6 +10,7 @@ function App() {
   const [todo, setTodo] = useState("");
   const [editIndex, setEditIndex] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [validationMessage, setValidationMessage] = useState("");
 
   useEffect(() => {
     const handleResize = () => {
@@ -21,20 +22,28 @@ function App() {
   }, []);
 
   const handleAdd = () => {
-    if (!todo.trim()) return;
+    if (!todo.trim()) {
+      setValidationMessage("Kindly add something");
+      return;
+    }
 
     const newTodos = [...todos];
     if (editIndex !== null) {
-      // Edit existing todo
       newTodos[editIndex] = todo;
       setEditIndex(null);
     } else {
-      // Add new todo
       newTodos.push(todo);
     }
 
     setTodos(newTodos);
     localStorage.setItem("todos", JSON.stringify(newTodos));
+    setTodo("");
+  };
+
+  const handleDeleteAll = () => {
+    setTodos([]);
+    localStorage.setItem("todos", JSON.stringify([]));
+    setEditIndex(null);
     setTodo("");
   };
 
@@ -65,12 +74,16 @@ function App() {
       <div className="mx-auto max-w-4xl w-full my-5 rounded-xl p-4 md:p-6 bg-violet-100 min-h-[80vh]">
         <div className="AddTodo mb-6">
           <h2 className="text-lg font-bold mb-3">Add a Todo</h2>
-          <div className="flex flex-col md:flex-row gap-3">
+          <div className="w-full flex gap-2">
             <input
               type="text"
+              required
               value={todo}
-              onChange={(e) => setTodo(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onChange={(e) => {
+                setTodo(e.target.value);
+                setValidationMessage("");
+              }}
+              onKeyDown={handleKeyPress}
               placeholder="Enter your todo..."
               className="w-full p-2 md:p-2.5 rounded-md border-2 border-violet-500 focus:border-violet-700 focus:outline-none"
               aria-label="Todo input"
@@ -83,9 +96,29 @@ function App() {
               {editIndex !== null ? "Update" : "Add"}
             </button>
           </div>
+          {validationMessage && (
+            <p className="text-red-500 text-sm mt-1">{validationMessage}</p>
+          )}
         </div>
 
-        <h2 className="text-lg font-bold mb-3">Your ToDos</h2>
+        <div className="flex justify-between items-center mb-3">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-bold">Your ToDos</h2>
+            <span className="bg-violet-600 text-white px-2 py-1 rounded-full text-sm">
+              {todos.length}
+            </span>
+          </div>
+          {todos.length > 0 && (
+            <button
+              onClick={handleDeleteAll}
+              className="bg-red-600 hover:bg-red-700 p-2 text-white rounded-md transition-colors duration-200 text-sm"
+              aria-label="Delete all todos"
+            >
+              {isMobile ? "🗑️ All" : "Delete All"}
+            </button>
+          )}
+        </div>
+
         {todos.length === 0 ? (
           <div className="text-center py-8 text-gray-600">
             No todos yet. Add one above!
