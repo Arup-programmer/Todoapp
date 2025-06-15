@@ -7,7 +7,7 @@ function App() {
     return savedTodos ? JSON.parse(savedTodos) : [];
   });
 
-  const [todo, setTodo] = useState("");
+  const [todo, setTodo] = useState(""); 
   const [editIndex, setEditIndex] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [validationMessage, setValidationMessage] = useState("");
